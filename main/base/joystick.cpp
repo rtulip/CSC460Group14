@@ -1,7 +1,16 @@
 #include "joystick.h"
 
 int data_x_L, data_y_L, data_x_R, data_y_R = 500;
-int data_btn_R, data_btn_L = 1;
+int data_btn_R, data_btn_L = 0;
+
+void setup_joysticks(){
+  pinMode (JS_L_X, INPUT);
+  pinMode (JS_L_Y, INPUT);
+  pinMode (JS_L_B, INPUT_PULLUP);
+  pinMode (JS_R_X, INPUT);
+  pinMode (JS_R_Y, INPUT);
+  pinMode (JS_R_B, INPUT_PULLUP);
+}
 
 int calculate_delta(int data){
 
@@ -37,4 +46,12 @@ struct return_tuple get_increment_values(){
   
   return return_tuple { delta_x_L, delta_y_L, delta_x_R, delta_y_R};
 
+}
+
+int get_button_data(int right){
+  if (right){
+    return digitalRead(JS_R_B);
+  } else {
+    return digitalRead(JS_L_B);
+  }
 }
