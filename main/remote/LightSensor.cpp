@@ -22,6 +22,5 @@ void calibrateLightSensor() {
 
 int lightSensorIsLit() {
   curLightValue = (0.75 * (float) curLightValue) + (0.25 * (float) analogRead(lightSensorPin));
-  Serial.println(curLightValue);
   return curLightValue > laserHitValue;
 }
