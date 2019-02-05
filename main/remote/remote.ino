@@ -37,8 +37,22 @@ void checkLightSensor() {
 }
 
 void checkPanTiltValues() {
-  unsigned char encoded_message = Serial1.read();
-  struct joystick_values message = decode_joystick_message(encoded_message);
+  if (Serial1.available() >= 2) {
+    unsigned char encoded_message1 = Serial1.read();
+    unsigned char encoded_message2 = Serial1.read();
+    struct joystick_values message1 = decode_joystick_message(encoded_message);
+    struct joystick_values message2 = decode_joystick_message(encoded_message);
+
+    if (message1.id == 0) {
+      update_pan_and_tilt(message1);
+    } else if (message2.id == 0){
+      update_pan_and_tilt(message2);
+    }
+    // handle Roomba message.
+  }
+}
+
+void update_pan_and_tilt(struct joystick_values message) {
   if (message.button) {
     analogWrite(LASER_PIN, 0);
   } else {
