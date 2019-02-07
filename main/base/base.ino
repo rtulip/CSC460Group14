@@ -16,9 +16,9 @@ void setup (){
    */
   lcd.begin(LCD_ROW_LEN,LCD_NUM_ROWS);
   lcd.setCursor(0,0);
-  lcd.print("Pan : ");
+  lcd.print("Left  :");
   lcd.setCursor(0,1);
-  lcd.print("Tilt: ");
+  lcd.print("Right :");
 
   /*
    *  Setup joysticks
@@ -30,19 +30,24 @@ void setup (){
    */
   Serial.begin (9600); // 9600 bps
   Serial1.begin(9600);
-
+  pinMode (48, OUTPUT);
+  pinMode (49, OUTPUT);
+  pinMode (50, OUTPUT);
+  pinMode (51, OUTPUT);
   /*
    * Start scheduler
    */
   Scheduler_Init();
   Scheduler_StartTask(0,100,updateServoControl);
-  Scheduler_StartTask(30,50,updateDisplay);
-  Scheduler_StartTask(10,500,updateHit);
+  Scheduler_StartTask(0,50,updateDisplay);
+  Scheduler_StartTask(10,100,updateHit);
 
 }
 
 void idle(uint32_t idle_period) {
+  digitalWrite(51,HIGH);
   delay(idle_period);
+  digitalWrite(51,LOW);
 }
 
 void loop (){
@@ -53,31 +58,34 @@ void loop (){
 }
 
 void updateServoControl(){
-  
+  digitalWrite(48,HIGH);
   returnTuple turnValues = getTurnValues();
   createPackets(turnValues, &leftJoystickPacket, &rightJoystickPacket);
   Serial1.write(leftJoystickPacket);
   Serial1.write(rightJoystickPacket);
- 
+  digitalWrite(48,LOW);
 }
 
 void createPackets(returnTuple data, unsigned char* leftPacket, unsigned char* rightPacket){
 
   *leftPacket  = LEFT_JS_ID  | getButtonData(LEFT_JS_ID)  | (data.turn_x_L << 3) | data.turn_y_L;
   *rightPacket = RIGHT_JS_ID | getButtonData(RIGHT_JS_ID) | (data.turn_x_R << 3) | data.turn_y_R;
-  
 }
 
 void updateDisplay(){
-  lcd.setCursor(6,0);
+  digitalWrite(49,HIGH);
+  lcd.setCursor(7,0);
   lcd.print(leftJoystickPacket, OCT);
-  lcd.setCursor(6,1);
+  lcd.setCursor(7,1);
   lcd.print(rightJoystickPacket, OCT);
+  digitalWrite(49,LOW);
 }
 
 void updateHit(){
+  digitalWrite(50,HIGH);
   if (Serial1.available()){
     lcd.setCursor(15,0);
     lcd.print(Serial1.read());
   }
+  digitalWrite(50,LOW);
 }

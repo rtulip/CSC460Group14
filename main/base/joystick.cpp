@@ -52,10 +52,8 @@ struct returnTuple getTurnValues(){
 
 char getButtonData(int right){
   if (right){
-    return 1 << 6;
-    //return (char) digitalRead(JS_R_B) << 6;
+    return (char) digitalRead(JS_R_B) << 6;
   } else {
-    return 1 << 6;
-    //return (char) digitalRead(JS_L_B) << 6;
+    return (char) digitalRead(JS_L_B) << 6;
   }
 }
