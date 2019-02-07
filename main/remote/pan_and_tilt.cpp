@@ -22,6 +22,7 @@ void setup_pan_and_tilt() {
 void update_servo_pan(int delta_value) {
   increment_servo_value(&servo_pan_time, delta_value);
   servo_pan.writeMicroseconds(servo_pan_time);
+  
 }
 
 void update_servo_tilt(int delta_value) {
