@@ -5,9 +5,16 @@
  *      Author: benhillier
  */
 #include "scheduler.h"
+#include "timer.h"
 
 #define disableInterrupts()         asm volatile ("cli"::)
 #define enableInterrupts()          asm volatile ("sei"::)
+
+volatile unsigned char* KernelSp;
+volatile unsigned char* CurrentSp;
+
+
+extern void ExitKernel();
 
 
 void schedulerInit() {
@@ -15,12 +22,15 @@ void schedulerInit() {
 	periodicInit();
 }
 
+
 void schedulerRun() {
 	for (;;) {
+
 		disableInterrupts();
 		unsigned long idleTime = periodicDispatch();
-
-		enableInterrupts();
+		// schedule event;
+		createTimeout(idleTime);
+		ExitKernel();
 
 	}
 }
