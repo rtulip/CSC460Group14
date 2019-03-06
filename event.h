@@ -4,8 +4,6 @@
  *  Created on: Mar. 5, 2019
  *      Author: rtulip
  */
-#include "timer.h"
-
 #ifndef EVENT_H_
 #define EVENT_H_
 
@@ -14,7 +12,7 @@ typedef void (*task_cb)();
 
 typedef struct
 {
-	int EID;
+	unsigned int EID;
 	int priority;
 	long runtime;
 	task_cb callback;
@@ -46,6 +44,6 @@ typedef struct {
 } event_list;
 
 int addEvent(int priority, long runtime, task_cb callback, void* state);
-int removeEvent(int EID);
+int removeEvent(unsigned int EID, event_t* task);
 
 #endif /* EVENT_H_ */

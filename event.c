@@ -8,7 +8,7 @@
 #include "event.h"
 #include <stdlib.h>
 
-int EVENT_COUNT = 0;
+unsigned int EVENT_COUNT = 0;
 event_list events = {NULL, NULL, 0};
 
 int addEvent(int priority, long runtime, task_cb callback, void* state){
@@ -43,11 +43,10 @@ int addEvent(int priority, long runtime, task_cb callback, void* state){
 
 }
 
-int removeEvent(int EID){
+int removeEvent(unsigned int EID, event_t* task){
 
 	event_node* current = events.head;
 	event_node* previous = events.head;
-
 	if (current == NULL){
 
 		return 0;
@@ -55,6 +54,13 @@ int removeEvent(int EID){
 	} else if (current->event->EID == EID) {
 
 		events.head = events.head->next;
+
+		task->EID = current->event->EID;
+		task->priority = current->event->priority;
+		task->runtime = current->event->runtime;
+		task->callback = current->event->callback;
+		task->state = current->event->state;
+
 		free(current->event);
 		free(current);
 		events.size--;
@@ -68,17 +74,50 @@ int removeEvent(int EID){
 		}
 
 		if (current == NULL){
-
 			return 0;
-
 		}
 
 		previous->next = current->next;
+
+		task->EID = current->event->EID;
+		task->priority = current->event->priority;
+		task->runtime = current->event->runtime;
+		task->callback = current->event->callback;
+		task->state = current->event->state;
+
 		free(current->event);
 		free(current);
 		events.size--;
 
 		return 1;
+	}
+
+}
+
+unsigned int eventDispatch(){
+
+	event_node* current = events.head;
+	int highest_priority = -1;
+	unsigned int target_EID = 0;
+
+	if (current == NULL){
+		return 0;
+	}
+
+	while (current != NULL){
+		if (highest_priority < current->event->priority){
+			highest_priority = current->event->priority;
+			target_EID = current->event->EID;
+		}
+		current = current->next;
+	}
+
+	event_t task;
+	if (removeEvent(target_EID, &task)){
+		task.callback(task.state);
+		return 1;
+	} else {
+		return 0;
 	}
 
 }
