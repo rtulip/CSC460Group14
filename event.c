@@ -121,3 +121,8 @@ unsigned int eventDispatch(){
 	}
 
 }
+
+void eventInit(){
+
+}
+
