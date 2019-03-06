@@ -20,6 +20,7 @@ extern void ExitKernel();
 void schedulerInit() {
 	timerInit();
 	periodicInit();
+	eventInit();
 }
 
 

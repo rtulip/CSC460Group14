@@ -6,6 +6,7 @@
  */
 
 #include "periodic.h"
+#include "event.h"
 #include "timer.h"
 
 #ifndef SCHEDULER_H_
