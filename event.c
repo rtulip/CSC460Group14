@@ -7,9 +7,15 @@
 
 #include "event.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 unsigned int EVENT_COUNT = 0;
 event_list events = {NULL, NULL, 0};
+
+void Task_Terminate(){
+	// TODO
+
+}
 
 int addEvent(int priority, long runtime, task_cb callback, void* state){
 
@@ -17,6 +23,19 @@ int addEvent(int priority, long runtime, task_cb callback, void* state){
 	event_node* newNode = (event_node*) malloc(sizeof(event_node));
 	EVENT_COUNT++;
 
+	newEvent->sp = (unsigned char*) &(newEvent->workspace[WORKSPACE-1]);
+    memset(&(newEvent->workspace),0,WORKSPACE);
+
+	*(unsigned char *)newEvent->sp-- = ((unsigned long)Task_Terminate) & 0x1ff;
+    *(unsigned char *)newEvent->sp-- = (((unsigned long)Task_Terminate) >> 8) & 0x1ff;
+    *(unsigned char *)newEvent->sp-- = (((unsigned long)Task_Terminate) >> 16) & 0x1ff;
+
+    *(unsigned char *)newEvent->sp-- = ((unsigned long)callback) & 0x1ff;
+    *(unsigned char *)newEvent->sp-- = (((unsigned long)callback) >> 8) & 0x1ff;
+    *(unsigned char *)newEvent->sp-- = (((unsigned long)callback) >> 16) & 0x1ff;
+
+
+    newEvent->sp -= 34;
 	newEvent->EID = EVENT_COUNT;
 	newEvent->priority = priority;
 	newEvent->runtime = runtime;

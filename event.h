@@ -7,18 +7,31 @@
 #ifndef EVENT_H_
 #define EVENT_H_
 
+#define WORKSPACE 256
 typedef void (*task_cb)();
 
 
 typedef struct
 {
-	unsigned int EID;
+
+	unsigned char *sp;   /* stack pointer into the "workSpace" */
+    unsigned char workspace[WORKSPACE];
+    unsigned int EID;
 	int priority;
 	long runtime;
 	task_cb callback;
 	void* state;
 
 } event_t;
+
+
+typedef enum event_states{
+
+	DEAD  = 0,
+	READY,
+	RUNNING
+
+} STATES;
 
 void eventInit();
 

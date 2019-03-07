@@ -13,6 +13,8 @@
 
 volatile unsigned char* KernelSp;
 volatile unsigned char* CurrentSp;
+event_t* CurrentEvent;
+
 
 
 extern void ExitKernel();
