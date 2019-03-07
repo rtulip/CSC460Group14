@@ -28,17 +28,17 @@ typedef struct  {
 
 void Event(void* stateP){
 
-	RAISE(PORTH6);
+	RAISE(PORTH5);
 	for (volatile int i = 0; i < 7000; i++){
 
 	}
-	LOWER(PORTH6);
+	LOWER(PORTH5);
 }
 
 void Ping(void* stateP) {
 	RAISE(PORTH3);
 	int x;
-	int max = rand() % 3;
+	int max = rand() % 4;
 	for (int i = 0; i < max; i++){
 		if (numEvents() < 5){
 			LOWER(PORTH3);

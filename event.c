@@ -62,7 +62,7 @@ int addEvent(int priority, long runtime, task_cb callback, void* state){
 
 }
 
-int removeEvent(unsigned int EID, event_t* task){
+int removeEvent(unsigned int EID, event_t** task_p){
 
 	event_node* current = events.head;
 	event_node* previous = events.head;
@@ -74,13 +74,8 @@ int removeEvent(unsigned int EID, event_t* task){
 
 		events.head = events.head->next;
 
-		task->EID = current->event->EID;
-		task->priority = current->event->priority;
-		task->runtime = current->event->runtime;
-		task->callback = current->event->callback;
-		task->state = current->event->state;
+		*(task_p) = current->event;
 
-		free(current->event);
 		free(current);
 		events.size--;
 		return 1;
@@ -98,13 +93,8 @@ int removeEvent(unsigned int EID, event_t* task){
 
 		previous->next = current->next;
 
-		task->EID = current->event->EID;
-		task->priority = current->event->priority;
-		task->runtime = current->event->runtime;
-		task->callback = current->event->callback;
-		task->state = current->event->state;
+		*(task_p) = current->event;
 
-		free(current->event);
 		free(current);
 		events.size--;
 
@@ -113,7 +103,7 @@ int removeEvent(unsigned int EID, event_t* task){
 
 }
 
-unsigned int eventDispatch(){
+unsigned int eventDispatch(event_t** task_p){
 
 	event_node* current = events.head;
 	int highest_priority = -1;
@@ -131,9 +121,7 @@ unsigned int eventDispatch(){
 		current = current->next;
 	}
 
-	event_t task;
-	if (removeEvent(target_EID, &task)){
-		task.callback(task.state);
+	if (removeEvent(target_EID, task_p)){
 		return 1;
 	} else {
 		return 0;
