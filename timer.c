@@ -41,10 +41,8 @@ void createTimeout(unsigned long idleTime) {
 
 ISR (TIMER3_COMPA_vect)
 {
-	PORTH |= 1 << PORTH6;
 	milliseconds += (TCNT3/ 125) * 2;
 	TCNT3 %= 125;
-	PORTH &= ~(1 << PORTH6);
 }
 
 // Timeout Interrupt

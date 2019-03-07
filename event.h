@@ -45,5 +45,5 @@ typedef struct {
 
 int addEvent(int priority, long runtime, task_cb callback, void* state);
 int removeEvent(unsigned int EID, event_t* task);
-
+int numEvents();
 #endif /* EVENT_H_ */

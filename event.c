@@ -126,3 +126,6 @@ void eventInit(){
 
 }
 
+int numEvents(){
+	return events.size;
+}

@@ -5,6 +5,7 @@
  *      Author: benhillier
  */
 #include "scheduler.h"
+#include <avr/io.h>
 #include "timer.h"
 
 #define disableInterrupts()         asm volatile ("cli"::)
@@ -28,10 +29,18 @@ void schedulerRun() {
 	for (;;) {
 
 		disableInterrupts();
+		LOWER(PORTH5);
 		unsigned long idleTime = periodicDispatch();
 		// schedule event;
-		createTimeout(idleTime);
-		ExitKernel();
+		//createTimeout(idleTime);
+		//ExitKernel();
+		enableInterrupts();
+		RAISE(PORTH5);
+		if (idleTime){
+
+			eventDispatch();
+
+		}
 
 	}
 }
