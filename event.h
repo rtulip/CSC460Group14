@@ -14,9 +14,7 @@ typedef void (*task_cb)();
 typedef struct
 {
 
-	unsigned char *sp;   /* stack pointer into the "workSpace" */
-    unsigned char workspace[WORKSPACE];
-    unsigned int EID;
+	unsigned int EID;
 	int priority;
 	long runtime;
 	task_cb callback;
