@@ -43,7 +43,7 @@ void Ping(void* stateP) {
 		if (numEvents() < 5){
 			LOWER(PORTH3);
 			RAISE(PORTH4);
-			addEvent(1, 50, Event, stateP);
+			addEvent(1, 9, Event, stateP);
 			LOWER(PORTH4);
 			RAISE(PORTH3);
 		}

@@ -37,7 +37,7 @@ void eventInit();
 
 void scheduleEvent(task_cb task, void* state, int priority);
 
-unsigned int eventDispatch(event_t** task);
+unsigned int eventDispatch(event_t** task, unsigned long idleTime);
 
 typedef struct event_node event_node;
 

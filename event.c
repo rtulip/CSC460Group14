@@ -103,7 +103,7 @@ int removeEvent(unsigned int EID, event_t** task_p){
 
 }
 
-unsigned int eventDispatch(event_t** task_p){
+unsigned int eventDispatch(event_t** task_p, unsigned long idleTime){
 
 	event_node* current = events.head;
 	int highest_priority = -1;
@@ -114,7 +114,7 @@ unsigned int eventDispatch(event_t** task_p){
 	}
 
 	while (current != NULL){
-		if (highest_priority < current->event->priority){
+		if (idleTime > current->event->runtime && highest_priority < current->event->priority){
 			highest_priority = current->event->priority;
 			target_EID = current->event->EID;
 		}

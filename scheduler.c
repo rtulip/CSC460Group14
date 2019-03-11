@@ -33,13 +33,10 @@ void schedulerRun() {
 
 		disableInterrupts();
 		unsigned long idleTime = periodicDispatch();
-		// schedule event;
-		//createTimeout(idleTime);
-		//ExitKernel();
 		enableInterrupts();
 		if (idleTime){
 
-			if (eventDispatch(&CurrentEvent)){
+			if (eventDispatch(&CurrentEvent, idleTime)){
 
 				CurrentEvent->callback(CurrentEvent->state);
 				free(CurrentEvent);
