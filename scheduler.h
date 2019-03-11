@@ -12,6 +12,9 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
+#define RAISE(x) PORTH |= (1 << x)
+#define LOWER(x) PORTH &= ~(1 << x)
+
 
 void schedulerInit();
 

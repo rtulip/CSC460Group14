@@ -5,13 +5,17 @@
  *      Author: benhillier
  */
 #include "scheduler.h"
+#include <avr/io.h>
 #include "timer.h"
+#include <stdlib.h>
 
 #define disableInterrupts()         asm volatile ("cli"::)
 #define enableInterrupts()          asm volatile ("sei"::)
 
 volatile unsigned char* KernelSp;
 volatile unsigned char* CurrentSp;
+event_t* CurrentEvent;
+
 
 
 extern void ExitKernel();
@@ -29,9 +33,18 @@ void schedulerRun() {
 
 		disableInterrupts();
 		unsigned long idleTime = periodicDispatch();
-		// schedule event;
-		createTimeout(idleTime);
-		ExitKernel();
+		enableInterrupts();
+		if (idleTime){
+
+			if (eventDispatch(&CurrentEvent, idleTime)){
+
+				CurrentEvent->callback(CurrentEvent->state);
+				free(CurrentEvent);
+
+			}
+
+
+		}
 
 	}
 }

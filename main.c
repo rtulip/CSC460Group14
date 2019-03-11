@@ -3,6 +3,7 @@
 #include "timer.h"
 #include "periodic.h"
 #include "scheduler.h"
+#include "stdlib.h"
 /*
  * main.c
  *
@@ -25,22 +26,40 @@ typedef struct  {
 	int val;
 } pingState;
 
+int eventScheduled = 0;
+
+void Event(void* stateP){
+
+	RAISE(PORTH5);
+	for (volatile int i = 0; i < 7000; i++);
+	LOWER(PORTH5);
+	eventScheduled = 0;
+}
+
 void Ping(void* stateP) {
-	PORTH |= 1 << PORTH4;
+	RAISE(PORTH3);
 	int x;
+	if (!eventScheduled && addDelayedEvent(50, Event,stateP)){
+		eventScheduled = 1;
+		LOWER(PORTH3);
+		RAISE(PORTH4);
+		for (volatile int i; i < 50; i++);
+		LOWER(PORTH4);
+		RAISE(PORTH3);
+
+		//addEvent(1, 9, Event, stateP);
+
+	}
 	pingState* state = ((struct pingState*)stateP);
 	for (x = 0; x < state->val; ++x) {}
-	state->val = (state->val + 1000) % 10000;
-	PORTH &= ~(1 << PORTH4);
+
 }
 
 void Pong(void* stateP) {
-	PORTH |= 1 << PORTH3;
-	int x;
+	LOWER(PORTH3);
 	pingState* state = ((struct pingState*)stateP);
-	for (x=0;x<state->val;x++) {}
-	state->val = (state->val + 1000) % 10000;
-	PORTH &= ~(1 << PORTH3);
+	for (int x=0;x<state->val;x++) {}
+
 }
 
 int main() {
