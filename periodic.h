@@ -5,6 +5,7 @@
  *      Author: benhillier
  */
 #include "timer.h"
+#include "errors.h"
 #include <avr/io.h>
 
 #ifndef PERIODIC_H_
@@ -30,12 +31,14 @@ typedef struct
 	void* state;
 	int priority;
 	int runtime;
+	int late_buffer;
+	int late_count;
 
 } task_t;
 
 void periodicInit();
 
-void addPeriodicTask(int delay, int period, task_cb task, void* state);
+void addPeriodicTask(int delay, int period, task_cb task, int late_buffer, void* state);
 int addDelayedEvent(int delay, long runtime, void* task, void* state);
 
 unsigned int periodicDispatch();
