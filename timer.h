@@ -12,6 +12,4 @@ unsigned long millis();
 
 void timerInit();
 
-void createTimeout(unsigned long idleTime);
-
 #endif /* TIMER_H_ */

@@ -14,7 +14,9 @@
 
 #define RAISE(x) PORTH |= (1 << x)
 #define LOWER(x) PORTH &= ~(1 << x)
-
+#define LATE_ERROR 1
+#define REPEATED_LATE_ERROR 2
+#define DEADLINE_MISSED_ERROR 3
 
 void schedulerInit();
 
