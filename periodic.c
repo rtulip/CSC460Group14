@@ -21,7 +21,7 @@ void periodicInit() {
 	num_tasks = 0;
 }
 
-void addPeriodicTask(int delay, int period, task_cb task, void* state)
+void addPeriodicTask(int delay, int period, task_cb task, int late_buffer, void* state)
 {
 	static unsigned int id = 0;
 	if (id < MAXTASKS)
@@ -32,6 +32,8 @@ void addPeriodicTask(int delay, int period, task_cb task, void* state)
 		tasks[id].callback = task;
 		tasks[id].state = state;
 		tasks[id].priority = PERIODIC;
+		tasks[id].late_count = 0;
+		tasks[id].late_buffer = late_buffer;
 		id++;
 		num_tasks++;
 	}
@@ -86,10 +88,13 @@ unsigned int periodicDispatch()
 				{
 					// if this task is ready to run, and we haven't already selected a task to run,
 					// select this one.
+					if (tasks[i].priority == PERIODIC) {
+						checkTaskLate(tasks[i]);
+					}
 					taskToRun = i;
 					tasks[i].remaining_time += tasks[i].period;
 				} else if (tasks[taskToRun].priority == EVENT && tasks[i].priority == PERIODIC){
-
+					checkTaskLate(tasks[i]);
 					// if selected task is an event, give priority to periodic task
 					taskToRun = i;
 					tasks[i].remaining_time += tasks[i].period;

@@ -7,6 +7,7 @@
 #include "scheduler.h"
 #include <avr/io.h>
 #include "timer.h"
+#include "errors.h"
 #include <stdlib.h>
 
 #define disableInterrupts()         asm volatile ("cli"::)
@@ -14,6 +15,7 @@
 
 volatile unsigned char* KernelSp;
 volatile unsigned char* CurrentSp;
+
 event_t* CurrentEvent;
 
 
@@ -21,16 +23,16 @@ event_t* CurrentEvent;
 extern void ExitKernel();
 
 
-void schedulerInit() {
+void schedulerInit(task_cb error_handler) {
 	timerInit();
 	periodicInit();
 	eventInit();
+	errorInit(error_handler);
 }
 
 
 void schedulerRun() {
 	for (;;) {
-
 		disableInterrupts();
 		unsigned long idleTime = periodicDispatch();
 		enableInterrupts();
