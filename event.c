@@ -12,11 +12,6 @@
 unsigned int EVENT_COUNT = 0;
 event_list events = {NULL, NULL, 0};
 
-void Task_Terminate(){
-	// TODO
-
-}
-
 int addEvent(int priority, long runtime, task_cb callback, void* state){
 
 	event_t* newEvent = (event_t*) malloc(sizeof(event_t));

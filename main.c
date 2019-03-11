@@ -26,27 +26,29 @@ typedef struct  {
 	int val;
 } pingState;
 
+int eventScheduled = 0;
+
 void Event(void* stateP){
 
 	RAISE(PORTH5);
-	for (volatile int i = 0; i < 7000; i++){
-
-	}
+	for (volatile int i = 0; i < 7000; i++);
 	LOWER(PORTH5);
+	eventScheduled = 0;
 }
 
 void Ping(void* stateP) {
 	RAISE(PORTH3);
 	int x;
-	int max = rand() % 4;
-	for (int i = 0; i < max; i++){
-		if (numEvents() < 5){
-			LOWER(PORTH3);
-			RAISE(PORTH4);
-			addEvent(1, 9, Event, stateP);
-			LOWER(PORTH4);
-			RAISE(PORTH3);
-		}
+	if (!eventScheduled && addDelayedEvent(50, Event,stateP)){
+		eventScheduled = 1;
+		LOWER(PORTH3);
+		RAISE(PORTH4);
+		for (volatile int i; i < 50; i++);
+		LOWER(PORTH4);
+		RAISE(PORTH3);
+
+		//addEvent(1, 9, Event, stateP);
+
 	}
 	pingState* state = ((struct pingState*)stateP);
 	for (x = 0; x < state->val; ++x) {}

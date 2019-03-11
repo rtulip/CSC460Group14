@@ -10,13 +10,15 @@
 task_t tasks[MAXTASKS];
 
 unsigned int last_runtime;
-
+unsigned int num_tasks;
+void * temp;
 unsigned int min(unsigned int a, unsigned int b) {
 	return a < b ? a : b;
 }
 
 void periodicInit() {
 	last_runtime = millis();
+	num_tasks = 0;
 }
 
 void addPeriodicTask(int delay, int period, task_cb task, void* state)
@@ -31,7 +33,32 @@ void addPeriodicTask(int delay, int period, task_cb task, void* state)
 		tasks[id].state = state;
 		tasks[id].priority = PERIODIC;
 		id++;
+		num_tasks++;
 	}
+}
+
+int addDelayedEvent(int delay, void* task, void* state ){
+
+	if (num_tasks < MAXTASKS){
+
+		for (int i = 0; i < MAXTASKS; i++){
+			if (!tasks[i].is_running){
+				tasks[i].remaining_time = delay;
+				tasks[i].period = 0;
+				tasks[i].is_running = 1;
+				tasks[i].callback = task;
+				tasks[i].state = state;
+				tasks[i].priority = EVENT;
+				num_tasks++;
+				return i+1;
+				temp = task;
+			}
+		}
+		return 0;
+	} else {
+		return 0;
+	}
+
 }
 
 unsigned int periodicDispatch()
@@ -81,7 +108,8 @@ unsigned int periodicDispatch()
 		task_t t = tasks[taskToRun];
 		t.callback(t.state);
 		if (tasks[taskToRun].priority == EVENT){
-			t.is_running = 0;
+			tasks[taskToRun].is_running = 0;
+			num_tasks--;
 		}
 	}
 	return idle_time;
