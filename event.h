@@ -7,7 +7,6 @@
 #ifndef EVENT_H_
 #define EVENT_H_
 
-#define WORKSPACE 256
 typedef void (*task_cb)();
 
 
@@ -21,15 +20,6 @@ typedef struct
 	void* state;
 
 } event_t;
-
-
-typedef enum event_states{
-
-	DEAD  = 0,
-	READY,
-	RUNNING
-
-} STATES;
 
 void eventInit();
 
