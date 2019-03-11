@@ -13,6 +13,8 @@
 
 typedef void (*task_cb)();
 
+#define PERIODIC 1
+#define EVENT 0
 
 typedef struct
 {
@@ -21,6 +23,7 @@ typedef struct
 	int is_running;
 	task_cb callback;
 	void* state;
+	int priority;
 } task_t;
 
 void periodicInit();

@@ -29,6 +29,7 @@ void addPeriodicTask(int delay, int period, task_cb task, void* state)
 		tasks[id].is_running = 1;
 		tasks[id].callback = task;
 		tasks[id].state = state;
+		tasks[id].priority = PERIODIC;
 		id++;
 	}
 }
@@ -60,6 +61,11 @@ unsigned int periodicDispatch()
 					// select this one.
 					taskToRun = i;
 					tasks[i].remaining_time += tasks[i].period;
+				} else if (tasks[taskToRun].priority == EVENT && tasks[i].priority == PERIODIC){
+
+					// if selected task is an event, give priority to periodic task
+					taskToRun = i;
+					tasks[i].remaining_time += tasks[i].period;
 				}
 				idle_time = 0;
 			}
@@ -74,6 +80,9 @@ unsigned int periodicDispatch()
 		// If a task was selected to run, call its function.
 		task_t t = tasks[taskToRun];
 		t.callback(t.state);
+		if (tasks[taskToRun].priority == EVENT){
+			t.is_running = 0;
+		}
 	}
 	return idle_time;
 }
