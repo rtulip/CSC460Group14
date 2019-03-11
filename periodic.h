@@ -29,12 +29,14 @@ typedef struct
 	task_cb callback;
 	void* state;
 	int priority;
+	int runtime;
+
 } task_t;
 
 void periodicInit();
 
 void addPeriodicTask(int delay, int period, task_cb task, void* state);
-int addDelayedEvent(int delay, void* task, void* state);
+int addDelayedEvent(int delay, long runtime, void* task, void* state);
 
 unsigned int periodicDispatch();
 

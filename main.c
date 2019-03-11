@@ -39,7 +39,7 @@ void Event(void* stateP){
 void Ping(void* stateP) {
 	RAISE(PORTH3);
 	int x;
-	if (!eventScheduled && addDelayedEvent(50, Event,stateP)){
+	if (!eventScheduled && addDelayedEvent(50,9, Event,stateP)){
 		eventScheduled = 1;
 		LOWER(PORTH3);
 		RAISE(PORTH4);
