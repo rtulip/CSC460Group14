@@ -39,7 +39,7 @@ void addPeriodicTask(int delay, int period, task_cb task, int late_buffer, void*
 	}
 }
 
-int addDelayedEvent(int delay, void* task, void* state ){
+int addDelayedEvent(int delay,long runtime, void* task, void* state ){
 
 	if (num_tasks < MAXTASKS){
 
@@ -51,9 +51,9 @@ int addDelayedEvent(int delay, void* task, void* state ){
 				tasks[i].callback = task;
 				tasks[i].state = state;
 				tasks[i].priority = EVENT;
+				tasks[i].runtime = runtime;
 				num_tasks++;
 				return i+1;
-				temp = task;
 			}
 		}
 		return 0;
@@ -71,6 +71,7 @@ unsigned int periodicDispatch()
 	unsigned long elapsed = now - last_runtime;
 	last_runtime = now;
 	int taskToRun = -1;
+	int eventToRun = -1;
 	unsigned long idle_time = 0xFFFFFFFF;
 
 	// update each task's remaining time, and identify the first ready task (if there is one).
@@ -82,20 +83,13 @@ unsigned int periodicDispatch()
 
 			// update the task's remaining time
 			tasks[i].remaining_time -= elapsed;
-			if (tasks[i].remaining_time <= 0)
+			if (tasks[i].remaining_time <= 0 && tasks[i].priority == PERIODIC)
 			{
 				if (taskToRun == -1)
 				{
 					// if this task is ready to run, and we haven't already selected a task to run,
 					// select this one.
-					if (tasks[i].priority == PERIODIC) {
-						checkTaskLate(tasks[i]);
-					}
-					taskToRun = i;
-					tasks[i].remaining_time += tasks[i].period;
-				} else if (tasks[taskToRun].priority == EVENT && tasks[i].priority == PERIODIC){
 					checkTaskLate(tasks[i]);
-					// if selected task is an event, give priority to periodic task
 					taskToRun = i;
 					tasks[i].remaining_time += tasks[i].period;
 				}
@@ -107,6 +101,27 @@ unsigned int periodicDispatch()
 			}
 		}
 	}
+	if (taskToRun == -1){
+		for (i = 0; i < MAXTASKS; i++)
+		{
+
+			if (tasks[i].is_running)
+			{
+
+				// update the task's remaining time
+				if (tasks[i].remaining_time <= 0 && tasks[i].priority == EVENT && tasks[i].runtime < idle_time) {
+						// if this task is ready to run, and we haven't already selected a task to run,
+						// select this one.
+					taskToRun = i;
+					idle_time = 0;
+					break;
+				} else {
+					idle_time = min((unsigned int)tasks[i].remaining_time, idle_time);
+				}
+			}
+		}
+	}
+
 	if (taskToRun != -1)
 	{
 		// If a task was selected to run, call its function.

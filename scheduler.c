@@ -15,6 +15,8 @@
 
 volatile unsigned char* KernelSp;
 volatile unsigned char* CurrentSp;
+event_t* CurrentEvent;
+
 
 event_t* CurrentEvent;
 
