@@ -54,7 +54,6 @@ int addDelayedEvent(int delay,long runtime, void* task, void* state ){
 				tasks[i].runtime = runtime;
 				num_tasks++;
 				return i+1;
-				temp = task;
 			}
 		}
 		return 0;
@@ -90,14 +89,7 @@ unsigned int periodicDispatch()
 				{
 					// if this task is ready to run, and we haven't already selected a task to run,
 					// select this one.
-					if (tasks[i].priority == PERIODIC) {
-						checkTaskLate(tasks[i]);
-					}
-					taskToRun = i;
-					tasks[i].remaining_time += tasks[i].period;
-				} else if (tasks[taskToRun].priority == EVENT && tasks[i].priority == PERIODIC){
 					checkTaskLate(tasks[i]);
-					// if selected task is an event, give priority to periodic task
 					taskToRun = i;
 					tasks[i].remaining_time += tasks[i].period;
 				}
