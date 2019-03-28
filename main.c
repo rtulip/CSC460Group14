@@ -29,15 +29,15 @@ int main() {
 	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
 	disableInterrupts();
 	Roomba_Init();
-
+	_delay_ms(1000);
 	enableInterrupts();
 	schedulerInit(handleError);
-	_delay_ms(1000);
+
 	for (;;) {
-		_delay_ms(300);
-		Roomba_Drive(30, 0x8080);
-		_delay_ms(300);
-		Roomba_Drive(30, -1);
+		_delay_ms(800);
+		Roomba_Drive(20, 1);
+		_delay_ms(800);
+		Roomba_Drive(20, -1);
 
 	}
 	return 0;
