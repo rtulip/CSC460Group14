@@ -1,6 +1,7 @@
 #define F_CPU 16000000UL
 
 #include "Project2/scheduler.h"
+#include "pan_and_tilt/pan_and_tilt.h"
 #include "stdlib.h"
 #include "Project2/periodic.h"
 #include "uart/uart.h"
@@ -27,6 +28,7 @@ void driveRoomba(void* none) {
 
 int main() {
 	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
+	pan_and_tilt_init();
 	disableInterrupts();
 	Roomba_Init();
 	_delay_ms(1000);
