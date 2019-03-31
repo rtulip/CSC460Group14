@@ -9,6 +9,7 @@
 #define LIGHT_SENSOR_H_
 
 void lightSensorInit();
-int lightSensorIsLit(void* none);
+void updateLightSensorValue(void* none);
+int lightSensorIsLit();
 
 #endif /* LIGHT_SENSOR_H_ */

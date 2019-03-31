@@ -3,14 +3,14 @@
 #include "../analog/analog.h"
 
 
-int laserHitValue = 0;
+int laserHitValue;
 int curLightValue;
 
 
 void lightSensorInit() {
 	// Set PORTC0 as input
 	DDRC &= ~(1 << PORTC0);
-
+	laserHitValue = 0;
 	// Set initial curLightValue
 	curLightValue = analog_read(0);
 	for (int i = 0; i < 10; i++) {
@@ -21,7 +21,10 @@ void lightSensorInit() {
 	laserHitValue += laserHitValue / 10;
 }
 
-int lightSensorIsLit(void* none) {
+void updateLightSensorValue(void* none) {
 	curLightValue = (0.75 * (float) curLightValue) + (0.25 * (float) analog_read(0));
+}
+
+int lightSensorIsLit() {
 	return curLightValue > laserHitValue;
 }
