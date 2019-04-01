@@ -9,10 +9,10 @@
 
 task_t tasks[MAXTASKS];
 
-unsigned int last_runtime;
+unsigned long last_runtime;
 unsigned int num_tasks;
 void * temp;
-unsigned int min(unsigned int a, unsigned int b) {
+unsigned long min(unsigned long a, unsigned long b) {
 	return a < b ? a : b;
 }
 
@@ -63,7 +63,7 @@ int addDelayedEvent(int delay,long runtime, void* task, void* state ){
 
 }
 
-unsigned int periodicDispatch()
+unsigned long periodicDispatch()
 {
 	unsigned int i;
 
@@ -97,7 +97,7 @@ unsigned int periodicDispatch()
 			}
 			else
 			{
-				idle_time = min((unsigned int)tasks[i].remaining_time, idle_time);
+				idle_time = min(tasks[i].remaining_time, idle_time);
 			}
 		}
 	}
@@ -116,7 +116,7 @@ unsigned int periodicDispatch()
 					idle_time = 0;
 					break;
 				} else {
-					idle_time = min((unsigned int)tasks[i].remaining_time, idle_time);
+					idle_time = min(tasks[i].remaining_time, idle_time);
 				}
 			}
 		}

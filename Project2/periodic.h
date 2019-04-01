@@ -41,6 +41,6 @@ void periodicInit();
 void addPeriodicTask(int delay, int period, task_cb task, int late_buffer, void* state);
 int addDelayedEvent(int delay, long runtime, void* task, void* state);
 
-unsigned int periodicDispatch();
+unsigned long periodicDispatch();
 
 #endif /* PERIODIC_H_ */
