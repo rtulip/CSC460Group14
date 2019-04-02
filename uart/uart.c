@@ -41,6 +41,9 @@ void uart_init(UART_BPS bitrate){
 	/* Set baud rate */
 	UBRR1H = 0;
 	switch (bitrate) {
+	case UART_9600:
+		UBRR1L = 123;
+		break;
 	case UART_19200:
 		UBRR1L = 51;
 		break;

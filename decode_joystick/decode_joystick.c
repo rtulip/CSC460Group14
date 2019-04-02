@@ -42,10 +42,13 @@ int get_radius(int speed, int dir) {
 
 drive_values get_drive_values(joystick_values values) {
 	drive_values result;
+	if (values.y_speed == STATIONARY && values.x_speed == STATIONARY) {
+		result.velocity = 0;
+		result.radius = 0;
 
 	// Rotate if in stationary mode or the forward speed is 0.
-	if (global_mode == STATIONARY_MODE || values.y_speed == STATIONARY) {
-		result.radius = values.x_dir == BACKWARD ? 1 : -1;
+	} else if (global_mode == STATIONARY_MODE || values.y_speed == STATIONARY) {
+		result.radius = values.x_dir == BACKWARD ? -1 : 1;
 		result.velocity = get_velocity(values.x_speed);
 
 	} else {
@@ -56,13 +59,9 @@ drive_values get_drive_values(joystick_values values) {
 	return result;
 }
 
-servo_values get_servo_values(joystick_values values) {
-	int x_delta = calculate_joystick_delta(values.x_speed, values.x_dir);
-	int y_delta = calculate_joystick_delta(values.y_speed, values.y_dir);
-	servo_values result = {x_delta, y_delta, values.button, values.id};
-	return result;
-}
-
+/**
+ * For use with servo.
+ */
 int calculate_joystick_delta(int speed, int dir) {
   int dir_modifier = dir == BACKWARD ? -1 : 1;
   if (speed == FAST_TURN) {
@@ -74,4 +73,11 @@ int calculate_joystick_delta(int speed, int dir) {
   } else {
     return 0;
   }
+}
+
+servo_values get_servo_values(joystick_values values) {
+	int x_delta = calculate_joystick_delta(values.x_speed, values.x_dir);
+	int y_delta = calculate_joystick_delta(values.y_speed, values.y_dir);
+	servo_values result = {x_delta, y_delta, values.button, values.id};
+	return result;
 }

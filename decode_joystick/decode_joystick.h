@@ -15,13 +15,13 @@
 #define MEDIUM_TURN_DELTA 10
 #define SLOW_TURN_DELTA 5
 
-#define FAST_VELOCITY 500
+#define FAST_VELOCITY 400
 #define MEDIUM_VELOCITY 200
 #define SLOW_VELOCITY 50
 
-#define FAST_RADIUS 50
-#define MEDIUM_RADIUS 100
-#define SLOW_RADIUS 300
+#define FAST_RADIUS 500
+#define MEDIUM_RADIUS 1000
+#define SLOW_RADIUS 2000
 
 
 typedef struct joystick_values {

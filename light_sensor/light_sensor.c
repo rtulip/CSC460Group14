@@ -4,8 +4,7 @@
 
 
 int laserHitValue;
-int curLightValue;
-
+int curLightValue = 0;
 
 void lightSensorInit() {
 	// Set PORTC0 as input
@@ -21,8 +20,8 @@ void lightSensorInit() {
 	laserHitValue += laserHitValue / 10;
 }
 
-void updateLightSensorValue(void* none) {
-	curLightValue = (0.75 * (float) curLightValue) + (0.25 * (float) analog_read(0));
+int getLightSensorValue() {
+	return curLightValue = (0.75 * (float) curLightValue) + (0.25 * (float) analog_read(0));
 }
 
 int lightSensorIsLit() {
