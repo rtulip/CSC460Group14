@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "uart.h"
 
 
 #ifndef UART2_H_

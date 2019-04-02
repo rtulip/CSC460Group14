@@ -6,6 +6,8 @@
  */
 #include <avr/io.h>
 #include "analog.h"
+#include "../uart/uart2.h"
+#include <util/delay.h>
 
 
 /*
