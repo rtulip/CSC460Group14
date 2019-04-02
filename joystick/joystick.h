@@ -18,8 +18,8 @@
 #define LOW_BOUND      10
 #define MED_LOW_BOUND  30
 #define DEAD_ZONE_LOW  65
-#define DEAD_ZONE_HIGH 95
-#define MED_HIGH_BOUND 120
+#define DEAD_ZONE_HIGH 110
+#define MED_HIGH_BOUND 140
 #define HIGH_BOUND     155
 
 #define LEFT_JS_ID  0x00
@@ -36,3 +36,4 @@ void setupJoysticks();
 char getTurnRate(int data);
 struct returnTuple getTurnValues();
 void createPackets(unsigned char* leftPacket, unsigned char* rightPacket);
+char getButtonData(int button_id);

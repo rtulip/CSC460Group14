@@ -33,7 +33,7 @@ void sendJoystickPackets(void* none) {
 
 
 int main() {
-	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
+	DDRH = (1 << DDH6);
 	// Set analog pins as input for joysticks.
 	uart2_init(UART_9600);
 	enableInterrupts();

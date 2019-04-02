@@ -7,7 +7,11 @@ int data_x_L, data_y_L, data_x_R, data_y_R = 512;
 int data_btn_R, data_btn_L = 0;
 
 void setupJoysticks(){
-	DDRC &= ~(1 << PORTC0) & ~(1 << PORTC1) & ~(1 << PORTC2) & ~(1 << PORTC3);
+	DDRC &= ~(1 << DDC0) & ~(1 << DDC1) & ~(1 << DDC2) & ~(1 << DDC3);
+	// Set pins 6 and 7 as inputs.
+	DDRH |= (1 << DDH3) | (1 << DDH4);
+	// Activate pins 6 and 7's pull-up resistors.
+	PORTH |= (1 << PORTH3) | (1 << PORTH4);
 }
 
 char getTurnRate(int data) {
@@ -51,16 +55,21 @@ struct returnTuple getTurnValues(){
 
 void createPackets(unsigned char* leftPacket, unsigned char* rightPacket){
 	returnTuple data = getTurnValues();
-//  *leftPacket  = LEFT_JS_ID  | getButtonData(LEFT_JS_ID)  | (data.turn_x_L << 3) | data.turn_y_L;
-//  *rightPacket = RIGHT_JS_ID | getButtonData(RIGHT_JS_ID) | (data.turn_x_R << 3) | data.turn_y_R;
-  *leftPacket  = LEFT_JS_ID  | (data.turn_x_L << 3) | data.turn_y_L;
-  *rightPacket = RIGHT_JS_ID | (data.turn_x_R << 3) | data.turn_y_R;
+  *leftPacket  = LEFT_JS_ID  | getButtonData(LEFT_JS_ID)  | (data.turn_x_L << 3) | data.turn_y_L;
+  *rightPacket = RIGHT_JS_ID | getButtonData(RIGHT_JS_ID) | (data.turn_x_R << 3) | data.turn_y_R;
+//  *leftPacket  = LEFT_JS_ID  | (data.turn_x_L << 3) | data.turn_y_L;
+//  *rightPacket = RIGHT_JS_ID | (data.turn_x_R << 3) | data.turn_y_R;
 }
 
-//char getButtonData(int right){
-//  if (right){
-//    return (char) digitalRead(JS_R_B) << 6;
-//  } else {
-//    return (char) digitalRead(JS_L_B) << 6;
-//  }
-//}
+char getButtonData(int button_id) {
+  if (button_id == RIGHT_JS_ID){
+	  if (PINH & (1 << PH3)) {
+		  return 1 << 6;
+	  }
+  } else {
+	  if (PINH & (1 << PH4)) {
+		  return 1 << 6;
+	  }
+  }
+  return 0;
+}
