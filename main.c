@@ -7,6 +7,7 @@
 #include "uart/uart.h"
 #include "roomba/roomba.h"
 #include "Project2/event.h"
+#include "Project2/timer.h"
 #include <util/delay.h>
 #include "uart/uart2.h"
 #include "light_sensor/light_sensor.h"
@@ -26,6 +27,12 @@ typedef struct drive_roomba_state {
 	int velocity;
 	int radius;
 } drive_roomba_state;
+
+typedef struct laser_state {
+	int time_remaining;
+	int turn_on_time;
+	int is_on;
+} laser_state;
 
 void handleError(int error) {
 	RAISE(PORTH6);
@@ -68,11 +75,39 @@ void updatePackets(void* none) {
 	}
 }
 
-void updateServos(void* none) {
+void updateServos(void* state) {
 	joystick_values j = decode_joystick_message(servo_packet);
 	servo_values values = get_servo_values(j);
-	update_servo_pan(values.x_delta);
+	update_servo_pan(values.y_delta);
+	update_servo_tilt(values.x_delta);
+}
 
+void updateLaser(laser_state* state) {
+	joystick_values j = decode_joystick_message(servo_packet);
+	int cur_time = millis();
+
+	if (j.button) {
+		// Turn off.
+		PORTA &= ~(1 << PORTA4);
+		if (state->is_on) {
+			state->time_remaining -= cur_time - state->turn_on_time;
+			state->is_on = 0;
+		}
+	} else if (state->is_on) {
+		int time_remaining = state->time_remaining - (cur_time - state->turn_on_time);
+		if (time_remaining <= 0) {
+			// Turn off.
+			PORTA &= ~(1 << PORTA4);
+			state->time_remaining = 0;
+			state->is_on = 0;
+		}
+		// if still time remaining, but is on then do nothing.
+	} else if (state->time_remaining > 0){
+		// Turn on.
+		PORTA |= (1 << PORTA4);
+		state->is_on = 1;
+		state->turn_on_time = cur_time;
+	}
 }
 
 void driveRoomba(drive_roomba_state* state) {
@@ -110,9 +145,11 @@ void lightSensor(void* none) {
 
 }
 
+
 int main() {
 	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
-//	pan_and_tilt_init();
+	// Set pin 26 as output for laser.
+	DDRA |= 1 << DDA4;
 	disableInterrupts();
 	Roomba_Init();
 	_delay_ms(1000);
@@ -122,9 +159,12 @@ int main() {
 	schedulerInit(handleError);
 //	addPeriodicTask(20, 100, lightSensor, 10, NULL);
 	drive_roomba_state r_state = {0,0};
-	addPeriodicTask(40, 100, driveRoomba, 10, &r_state);
+
+	laser_state l_state = {10000,0,0};
 	addPeriodicTask(20, 100, updatePackets, 10, NULL);
+	addPeriodicTask(40, 100, driveRoomba, 10, &r_state);
 	addPeriodicTask(60, 100, updateServos, 10, NULL);
+	addPeriodicTask(80, 100, updateLaser, 10, &l_state);
 //	addPeriodicTask(30000, 30000, switch_modes, 10, NULL);
 	schedulerRun();
 	// Configure PORT D bit 0 to an output
