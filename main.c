@@ -15,17 +15,22 @@
 #include "decode_joystick/decode_joystick.h"
 #include "mode.h"
 
-#define MAX_VELOCITY_DELTA_UP 120
-#define MAX_VELOCITY_DELTA_DOWN 120
-#define MAX_RADIUS_DELTA 50
+#define MAX_VELOCITY_DELTA_UP 80
+#define MAX_VELOCITY_DELTA_DOWN 80
+#define DEFAULT_PACKET 0b00100100
 
-char roomba_packet = 0;
-char servo_packet = -1;
+char roomba_packet = DEFAULT_PACKET;
+char servo_packet = DEFAULT_PACKET;
 int drive_mode_switched = 0;
+int hit_wall;
+int has_new_packets = 0;
+
+roomba_sensor_data_t sensor_packet;
 
 typedef struct drive_roomba_state {
 	int velocity;
 	int radius;
+	int backup_count;
 } drive_roomba_state;
 
 typedef struct laser_state {
@@ -72,6 +77,9 @@ void updatePackets(void* none) {
 		} else {
 			roomba_packet = p2;
 		}
+	} else {
+		roomba_packet = DEFAULT_PACKET;
+		servo_packet = DEFAULT_PACKET;
 	}
 }
 
@@ -110,23 +118,43 @@ void updateLaser(laser_state* state) {
 	}
 }
 
+int sameRadius(int r1, int r2) {
+	return r1 == r2 || (r1 != -1 && r1 != 1 && r2 != -1 && r2 != 1);
+}
+
 void driveRoomba(drive_roomba_state* state) {
+	if (hit_wall) {
+		state->backup_count = 5;
+		hit_wall = 0;
+	}
+	if (state->backup_count) {
+		// backup
+		if (state->backup_count == 1) {
+			Roomba_Drive(0,0);
+		} else {
+			Roomba_Drive(-100, 0x8000);
+		}
+		--state->backup_count;
+		return;
+	}
 	joystick_values j = decode_joystick_message(roomba_packet);
 	drive_values values = get_drive_values(j);
-	if (drive_mode_switched) {
+	if (drive_mode_switched || !sameRadius(state->radius, values.radius)) {
 		gradually_come_to_stop(state);
+		if (state->velocity == 0) {
+			state->radius = values.radius;
+		}
 	} else {
 		// gradually increases speed.
 		// gradual change from DRIVE_MODE to STATIONARY_MODE
 		// does not work so only gradually change in DRIVE_MODE.
-//		if (values.velocity > state->velocity + MAX_VELOCITY_DELTA_DOWN) {
-//			state->velocity += MAX_VELOCITY_DELTA_DOWN;
-//		} else if (values.velocity > state->velocity - MAX_VELOCITY_DELTA_UP){
-//			state->velocity = values.velocity;
-//		} else {
-//			state->velocity -= MAX_VELOCITY_DELTA_UP;
-//		}
-		state->velocity = values.velocity;
+		if (values.velocity > state->velocity + MAX_VELOCITY_DELTA_DOWN) {
+			state->velocity += MAX_VELOCITY_DELTA_DOWN;
+		} else if (values.velocity > state->velocity - MAX_VELOCITY_DELTA_UP){
+			state->velocity = values.velocity;
+		} else {
+			state->velocity -= MAX_VELOCITY_DELTA_UP;
+		}
 		state->radius = values.radius;
 	}
 	Roomba_Drive(state->velocity, state->radius);
@@ -145,6 +173,16 @@ void lightSensor(void* none) {
 
 }
 
+void updateRoombaSensor(void* none) {
+	Roomba_UpdateSensorPacket(EXTERNAL, &sensor_packet);
+}
+
+void checkWalls(void* none) {
+	if (sensor_packet.bumps_wheeldrops || sensor_packet.virtual_wall) {
+		hit_wall = 1;
+	}
+}
+
 
 int main() {
 	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
@@ -158,14 +196,16 @@ int main() {
 	uart2_init(UART_9600);
 	schedulerInit(handleError);
 //	addPeriodicTask(20, 100, lightSensor, 10, NULL);
-	drive_roomba_state r_state = {0,0};
+	drive_roomba_state r_state = {0,0,0};
 
 	laser_state l_state = {10000,0,0};
-	addPeriodicTask(20, 100, updatePackets, 10, NULL);
-	addPeriodicTask(40, 100, driveRoomba, 10, &r_state);
-	addPeriodicTask(60, 100, updateServos, 10, NULL);
-	addPeriodicTask(80, 100, updateLaser, 10, &l_state);
-//	addPeriodicTask(30000, 30000, switch_modes, 10, NULL);
+	addPeriodicTask(0, 100, updatePackets, 10, NULL);
+	addPeriodicTask(10, 100, driveRoomba, 10, &r_state);
+	addPeriodicTask(20, 100, updateServos, 10, NULL);
+	addPeriodicTask(30, 100, updateLaser, 10, &l_state);
+	addPeriodicTask(40, 100, updateRoombaSensor, 10, NULL);
+	addPeriodicTask(70, 100, checkWalls, 10, NULL);
+	addPeriodicTask(10000, 10000, switch_modes, 10, NULL);
 	schedulerRun();
 	// Configure PORT D bit 0 to an output
 

@@ -20,8 +20,8 @@
 #define SLOW_VELOCITY 50
 
 #define FAST_RADIUS 500
-#define MEDIUM_RADIUS 1000
-#define SLOW_RADIUS 2000
+#define MEDIUM_RADIUS 500
+#define SLOW_RADIUS 500
 
 
 typedef struct joystick_values {

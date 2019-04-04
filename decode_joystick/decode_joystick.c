@@ -44,7 +44,7 @@ drive_values get_drive_values(joystick_values values) {
 	drive_values result;
 	if (values.y_speed == STATIONARY && values.x_speed == STATIONARY) {
 		result.velocity = 0;
-		result.radius = 0;
+		result.radius = 0x8000;
 
 	// Rotate if in stationary mode or the forward speed is 0.
 	} else if (global_mode == STATIONARY_MODE || values.y_speed == STATIONARY) {
