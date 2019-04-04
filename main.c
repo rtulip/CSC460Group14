@@ -139,6 +139,8 @@ void switch_modes(void* none) {
 }
 
 void registerShot(void* None){
+	RAISE(PORTH4);
+	LOWER(PORTH4);
 	while(1);
 }
 
@@ -149,7 +151,9 @@ void lightSensor(void* none) {
 	if (lightSensorIsLit()){
 
 		if (!kill_PID){
+			RAISE(PORTH3);
 			kill_PID = addDelayedEvent(2000, 0, registerShot, NULL);
+			LOWER(PORTH3);
 		}
 
 	} else {
