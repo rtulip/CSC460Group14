@@ -130,8 +130,6 @@ void driveRoomba(drive_roomba_state* state) {
 		state->radius = values.radius;
 	}
 	Roomba_Drive(state->velocity, state->radius);
-
-
 }
 
 void switch_modes(void* none) {
@@ -140,9 +138,10 @@ void switch_modes(void* none) {
 }
 
 void lightSensor(void* none) {
+	RAISE(PORTH3);
 	int v = getLightSensorValue();
 	uart2_putchar(v);
-
+	LOWER(PORTH3);
 }
 
 
@@ -157,7 +156,8 @@ int main() {
 	pan_and_tilt_init();
 	uart2_init(UART_9600);
 	schedulerInit(handleError);
-//	addPeriodicTask(20, 100, lightSensor, 10, NULL);
+	lightSensorInit();
+	addPeriodicTask(20, 100, lightSensor, 10, NULL);
 	drive_roomba_state r_state = {0,0};
 
 	laser_state l_state = {10000,0,0};
