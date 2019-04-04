@@ -139,9 +139,7 @@ void switch_modes(void* none) {
 }
 
 void registerShot(void* None){
-	RAISE(PORTH4);
 	while(1);
-	LOWER(PORTH4);
 }
 
 void lightSensor(void* none) {
@@ -150,19 +148,15 @@ void lightSensor(void* none) {
 
 	if (lightSensorIsLit()){
 
-		RAISE(PORTH3);
 		if (!kill_PID){
 			kill_PID = addDelayedEvent(2000, 0, registerShot, NULL);
 		}
-		LOWER(PORTH3);
 
 	} else {
 
 		if (kill_PID){
-			RAISE(PORTH5);
 			removeDelayedEvent(kill_PID);
 			kill_PID = 0;
-			LOWER(PORTH5);
 		}
 
 	}
@@ -171,10 +165,7 @@ void lightSensor(void* none) {
 
 int main() {
 	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
-	LOWER(PORTH3);
-	LOWER(PORTH4);
-	LOWER(PORTH5);
-	LOWER(PORTH6);
+
 	// Set pin 26 as output for laser.
 	DDRA |= 1 << DDA4;
 	disableInterrupts();
