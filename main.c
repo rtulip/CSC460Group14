@@ -22,6 +22,7 @@
 char roomba_packet = 0;
 char servo_packet = -1;
 int drive_mode_switched = 0;
+int kill_PID = 0;
 
 typedef struct drive_roomba_state {
 	int velocity;
@@ -137,16 +138,43 @@ void switch_modes(void* none) {
 	drive_mode_switched = 1;
 }
 
+void registerShot(void* None){
+	RAISE(PORTH4);
+	while(1);
+	LOWER(PORTH4);
+}
+
 void lightSensor(void* none) {
-	RAISE(PORTH3);
 	int v = getLightSensorValue();
 	uart2_putchar(v);
-	LOWER(PORTH3);
+
+	if (lightSensorIsLit()){
+
+		RAISE(PORTH3);
+		if (!kill_PID){
+			kill_PID = addDelayedEvent(2000, 0, registerShot, NULL);
+		}
+		LOWER(PORTH3);
+
+	} else {
+
+		if (kill_PID){
+			RAISE(PORTH5);
+			removeDelayedEvent(kill_PID);
+			kill_PID = 0;
+			LOWER(PORTH5);
+		}
+
+	}
 }
 
 
 int main() {
 	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
+	LOWER(PORTH3);
+	LOWER(PORTH4);
+	LOWER(PORTH5);
+	LOWER(PORTH6);
 	// Set pin 26 as output for laser.
 	DDRA |= 1 << DDA4;
 	disableInterrupts();
