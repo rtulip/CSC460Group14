@@ -139,8 +139,7 @@ void switch_modes(void* none) {
 }
 
 void registerShot(void* None){
-	RAISE(PORTH4);
-	LOWER(PORTH4);
+//	LOWER(PORTH4);
 	while(1);
 }
 
@@ -149,21 +148,24 @@ void lightSensor(void* none) {
 	uart2_putchar(v);
 
 	if (lightSensorIsLit()){
-
+//		RAISE(PORTH3);
 		if (!kill_PID){
-			RAISE(PORTH3);
+
 			kill_PID = addDelayedEvent(2000, 0, registerShot, NULL);
-			LOWER(PORTH3);
 		}
 
 	} else {
-
+//		LOWER(PORTH3);
 		if (kill_PID){
 			removeDelayedEvent(kill_PID);
 			kill_PID = 0;
 		}
 
 	}
+}
+void alive(void* none){
+	RAISE(PORTH6);
+	LOWER(PORTH6);
 }
 
 
@@ -188,6 +190,7 @@ int main() {
 	addPeriodicTask(40, 100, driveRoomba, 10, &r_state);
 	addPeriodicTask(60, 100, updateServos, 10, NULL);
 	addPeriodicTask(80, 100, updateLaser, 10, &l_state);
+//	addPeriodicTask(0, 100, alive, 10,NULL);
 //	addPeriodicTask(30000, 30000, switch_modes, 10, NULL);
 	schedulerRun();
 	// Configure PORT D bit 0 to an output

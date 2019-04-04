@@ -17,8 +17,8 @@ void lightSensorInit() {
 		laserHitValue = laserHitValue > currentLight ? laserHitValue : currentLight;
 	}
 	// Add 10% buffer to laserHitValue.
-//	laserHitValue += laserHitValue / 10;
-	laserHitValue = 45;
+	laserHitValue += laserHitValue / 10;
+
 }
 
 int getLightSensorValue() {
