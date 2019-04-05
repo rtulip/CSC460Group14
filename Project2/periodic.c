@@ -63,6 +63,24 @@ int addDelayedEvent(int delay,long runtime, void* task, void* state ){
 
 }
 
+int removeDelayedEvent(int PID_PLUS_ONE){
+	int PID = PID_PLUS_ONE - 1;
+	if (PID < MAXTASKS){
+
+		if (tasks[PID].priority == EVENT && tasks[PID].is_running){
+			tasks[PID].is_running = 0;
+			num_tasks--;
+			return 1;
+		} else {
+			return 0;
+		}
+
+	} else {
+		return 0;
+	}
+
+}
+
 unsigned long periodicDispatch()
 {
 	unsigned int i;

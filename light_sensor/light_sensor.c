@@ -8,7 +8,7 @@ int curLightValue = 0;
 
 void lightSensorInit() {
 	// Set PORTC0 as input
-	DDRC &= ~(1 << PORTC0);
+	DDRF &= ~(1 << PORTF0);
 	laserHitValue = 0;
 	// Set initial curLightValue
 	curLightValue = analog_read(0);
@@ -17,11 +17,16 @@ void lightSensorInit() {
 		laserHitValue = laserHitValue > currentLight ? laserHitValue : currentLight;
 	}
 	// Add 10% buffer to laserHitValue.
-	laserHitValue += laserHitValue / 10;
+	laserHitValue += laserHitValue / 2;
+
 }
 
 int getLightSensorValue() {
 	return curLightValue = (0.75 * (float) curLightValue) + (0.25 * (float) analog_read(0));
+}
+
+int getHitValue(){
+	return laserHitValue;
 }
 
 int lightSensorIsLit() {

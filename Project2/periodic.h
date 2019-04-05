@@ -15,7 +15,7 @@
 #define LOWER(x) PORTH &= ~(1 << x)
 
 
-#define MAXTASKS 8
+#define MAXTASKS 16
 
 typedef void (*task_cb)();
 
@@ -40,6 +40,7 @@ void periodicInit();
 
 void addPeriodicTask(int delay, int period, task_cb task, int late_buffer, void* state);
 int addDelayedEvent(int delay, long runtime, void* task, void* state);
+int removeDelayedEvent(int PID_PLUS_ONE);
 
 unsigned long periodicDispatch();
 

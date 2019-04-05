@@ -22,6 +22,7 @@
 char roomba_packet = DEFAULT_PACKET;
 char servo_packet = DEFAULT_PACKET;
 int drive_mode_switched = 0;
+int kill_PID = 0;
 int hit_wall;
 int has_new_packets = 0;
 
@@ -158,19 +159,54 @@ void driveRoomba(drive_roomba_state* state) {
 		state->radius = values.radius;
 	}
 	Roomba_Drive(state->velocity, state->radius);
-
-
 }
 
 void switch_modes(void* none) {
+	if (global_mode){
+		RAISE(PORTH5);
+	} else {
+		LOWER(PORTH5);
+	}
 	global_mode = 1 - global_mode;
 	drive_mode_switched = 1;
+}
+
+void registerShot(void* None){
+	RAISE(PORTH4);
+	while(1){
+		RAISE(PORTH5);
+		_delay_ms(1000);
+		LOWER(PORTH5);
+	}
 }
 
 void lightSensor(void* none) {
 	int v = getLightSensorValue();
 	uart2_putchar(v);
+	if (v >= getHitValue()){
+		uart2_putchar(0xFF);
+	}
 
+	if (lightSensorIsLit()){
+		RAISE(PORTH3);
+		if (!kill_PID){
+
+			kill_PID = addDelayedEvent(2000, 0, registerShot, NULL);
+			if (!kill_PID) handleError(NULL);
+		}
+
+	} else {
+		LOWER(PORTH3);
+		if (kill_PID){
+			removeDelayedEvent(kill_PID);
+			kill_PID = 0;
+		}
+
+	}
+}
+void alive(void* none){
+	RAISE(PORTH6);
+	LOWER(PORTH6);
 }
 
 void updateRoombaSensor(void* none) {
@@ -186,6 +222,7 @@ void checkWalls(void* none) {
 
 int main() {
 	DDRH = (1 << DDH3) | (1 << DDH4) | (1 << DDH5) | (1 << DDH6);
+
 	// Set pin 26 as output for laser.
 	DDRA |= 1 << DDA4;
 	disableInterrupts();
@@ -195,17 +232,23 @@ int main() {
 	pan_and_tilt_init();
 	uart2_init(UART_9600);
 	schedulerInit(handleError);
-//	addPeriodicTask(20, 100, lightSensor, 10, NULL);
+	lightSensorInit();
+	addPeriodicTask(20, 100, lightSensor, 10, NULL);
 	drive_roomba_state r_state = {0,0,0};
 
 	laser_state l_state = {10000,0,0};
 	addPeriodicTask(0, 100, updatePackets, 10, NULL);
 	addPeriodicTask(10, 100, driveRoomba, 10, &r_state);
-	addPeriodicTask(20, 100, updateServos, 10, NULL);
-	addPeriodicTask(30, 100, updateLaser, 10, &l_state);
-	addPeriodicTask(40, 100, updateRoombaSensor, 10, NULL);
+	addPeriodicTask(30, 100, updateServos, 10, NULL);
+	addPeriodicTask(40, 100, updateLaser, 10, &l_state);
+	addPeriodicTask(50, 100, updateRoombaSensor, 10, NULL);
 	addPeriodicTask(70, 100, checkWalls, 10, NULL);
-	addPeriodicTask(10000, 10000, switch_modes, 10, NULL);
+	addPeriodicTask(5, 10000, switch_modes, 10, NULL);
+//	addPeriodicTask(5, 1000, switch_modes, 10, NULL);
+
+	LOWER(PORTH5);
+	LOWER(PORTH3);
+	LOWER(PORTH4);
 	schedulerRun();
 	// Configure PORT D bit 0 to an output
 

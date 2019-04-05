@@ -77,7 +77,7 @@ int calculate_joystick_delta(int speed, int dir) {
 
 servo_values get_servo_values(joystick_values values) {
 	int x_delta = calculate_joystick_delta(values.x_speed, values.x_dir);
-	int y_delta = calculate_joystick_delta(values.y_speed, values.y_dir);
+	int y_delta = calculate_joystick_delta(values.y_speed, 1 - values.y_dir);
 	servo_values result = {x_delta, y_delta, values.button, values.id};
 	return result;
 }
