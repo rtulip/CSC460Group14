@@ -11,6 +11,8 @@
 
 void lightSensorInit();
 int getLightSensorValue();
+int getHitValue();
 int lightSensorIsLit();
+
 
 #endif /* LIGHT_SENSOR_H_ */

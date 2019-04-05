@@ -172,23 +172,31 @@ void switch_modes(void* none) {
 }
 
 void registerShot(void* None){
-//	LOWER(PORTH4);
-	while(1);
+	RAISE(PORTH4);
+	while(1){
+		RAISE(PORTH5);
+		_delay_ms(1000);
+		LOWER(PORTH5);
+	}
 }
 
 void lightSensor(void* none) {
 	int v = getLightSensorValue();
 	uart2_putchar(v);
+	if (v >= getHitValue()){
+		uart2_putchar(0xFF);
+	}
 
 	if (lightSensorIsLit()){
-//		RAISE(PORTH3);
+		RAISE(PORTH3);
 		if (!kill_PID){
 
 			kill_PID = addDelayedEvent(2000, 0, registerShot, NULL);
+			if (!kill_PID) handleError(NULL);
 		}
 
 	} else {
-//		LOWER(PORTH3);
+		LOWER(PORTH3);
 		if (kill_PID){
 			removeDelayedEvent(kill_PID);
 			kill_PID = 0;
@@ -231,13 +239,16 @@ int main() {
 	laser_state l_state = {10000,0,0};
 	addPeriodicTask(0, 100, updatePackets, 10, NULL);
 	addPeriodicTask(10, 100, driveRoomba, 10, &r_state);
-	addPeriodicTask(20, 100, updateServos, 10, NULL);
-	addPeriodicTask(30, 100, updateLaser, 10, &l_state);
-	addPeriodicTask(40, 100, updateRoombaSensor, 10, NULL);
+	addPeriodicTask(30, 100, updateServos, 10, NULL);
+	addPeriodicTask(40, 100, updateLaser, 10, &l_state);
+	addPeriodicTask(50, 100, updateRoombaSensor, 10, NULL);
 	addPeriodicTask(70, 100, checkWalls, 10, NULL);
-	addPeriodicTask(10000, 10000, switch_modes, 10, NULL);
+	addPeriodicTask(5, 10000, switch_modes, 10, NULL);
+//	addPeriodicTask(5, 1000, switch_modes, 10, NULL);
 
 	LOWER(PORTH5);
+	LOWER(PORTH3);
+	LOWER(PORTH4);
 	schedulerRun();
 	// Configure PORT D bit 0 to an output
 

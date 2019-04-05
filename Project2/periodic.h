@@ -15,7 +15,7 @@
 #define LOWER(x) PORTH &= ~(1 << x)
 
 
-#define MAXTASKS 8
+#define MAXTASKS 16
 
 typedef void (*task_cb)();
 
