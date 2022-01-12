@@ -11,17 +11,7 @@
  *      Author: benhillier
  */
 
-/*
- * scheduler.cpp
- *
- *  Created on: 17-Feb-2011
- *      Author: nrqm
- *      Based on code by Jacob Schwartz
- */
-
-
-
-
+/* */
 typedef struct  {
 	int val;
 } pingState;
@@ -51,8 +41,6 @@ void DelayedEvent(void* stateP){
 void Ping(void* stateP) {
 	RAISE(PORTH3);
 	volatile int x;
-
-
 
 	if (DELAYED){
 		LOWER(PORTH3);
